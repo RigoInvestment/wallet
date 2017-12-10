@@ -32,9 +32,9 @@ if (typeof window.parity !== 'undefined') {
   WsSecureUrl = 'ws://localhost:8546';
 } else {
   // For RPC over Https
-  HttpsUrl = 'https://kovan.infura.io';
+  HttpsUrl = 'https://srv03.endpoint.network:8545';
   // For RPC over Websocket
-  WsSecureUrl = 'wss://kovan.infura.io:8546';
+  WsSecureUrl = 'wss://srv03.endpoint.network:8546';
 }
 
 console.log(window)
