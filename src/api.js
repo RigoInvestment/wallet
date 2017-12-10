@@ -16,8 +16,12 @@
 
 import Api from '@parity/api';
 
-const ethereumProvider = 'https://kovan.infura.io/oTRuD7vcUjsqn1pFIyMS';
-const transport = new Api.Provider.Http(ethereumProvider);
-const Api = new Api(transport);
+var Api = new Api();
+Api.setProvider(new web3.providers.HttpProvider('https://mainnet.infura.io/'));
+/*
+var provider = new Api.Provider.Http('https://kovan.infura.io/oTRuD7vcUjsqn1pFIyMS');
+console.log(provider);
+var Api = new Api(provider);
+*/
 
-export default new Api(ethereumProvider);
+export default Api;
