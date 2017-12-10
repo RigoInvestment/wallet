@@ -16,11 +16,43 @@
 
 import Api from '@parity/api';
 
-var ethereumProvider = window.ethereum || window.parent.ethereum;
+const OverHttps = true;
+const timeout = 10000; (seconds)
+
+if (typeof window.parity !== 'undefined') {
+  HttpsUrl = 'http://localhost:8545';
+} else {
+  // For RPC over Https
+  HttpsUrl = 'https://kovan.infura.io';
+}
 
 if (!ethereumProvider) {
   var ethereumProvider = new Api.Provider.Http('https://kovan.infura.io');
   console.log(ethereumProvider);
 }
 
-export default new Api(ethereumProvider);
+const checkTransport = () => {
+  if (OverHttps) {
+    try {
+      // for @parity/api
+      const transport = new Api.Provider.Http(HttpsUrl, timeout)
+
+      console.log(transport.isConnected)
+      // @parity/parity.js
+      // const transport = new Api.Transport.Http(HttpsUrl, timeout);
+      console.log("Connecting to ", HttpsUrl)
+      return new Api(transport);
+    } catch (err) {
+      console.warn('Connection error: ', err);
+    }
+  }
+}
+
+var api = checkTransport()
+console.log(api)
+
+api.isConnected ? console.log('Connected to Node:', api.isConnected) : console.log('Could not connect to node.')
+
+export {
+  api
+};
