@@ -19,7 +19,8 @@ import Api from '@parity/api';
 var ethereumProvider = window.ethereum || window.parent.ethereum;
 
 if (!ethereumProvider) {
-  var ethereumProvider = new Api.Provider.HttpProvider('https://kovan.infura.io');
+  var ethereumProvider = new Api.Provider.Http('https://kovan.infura.io');
+  console.log(ethereumProvider);
 }
 
 export default new Api(ethereumProvider);
