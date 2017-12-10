@@ -17,11 +17,6 @@
 import Api from '@parity/api';
 
 var Api = new Api();
-Api.setProvider(new web3.providers.HttpProvider('https://mainnet.infura.io/'));
-/*
-var provider = new Api.Provider.Http('https://kovan.infura.io/oTRuD7vcUjsqn1pFIyMS');
-console.log(provider);
-var Api = new Api(provider);
-*/
+Api.setProvider(new web3.providers.HttpProvider('https://kovan.infura.io/'));
 
 export default Api;
