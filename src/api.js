@@ -16,15 +16,8 @@
 
 import Api from '@parity/api';
 
-var httpsUrl = true;
-
-var ethereumProvider = window.ethereum || window.parent.ethereum;
-
-if (!ethereumProvider) {
-  var ethereumProvider = 'https://kovan.infura.io/oTRuD7vcUjsqn1pFIyMS'
-  const transport = new Api.Provider.Http(ethereumProvider)
-  const Api = new Api(transport);
-  //throw new Error('Unable to locate EthereumProvider, object not attached');
-}
+const ethereumProvider = 'https://kovan.infura.io/oTRuD7vcUjsqn1pFIyMS';
+const transport = new Api.Provider.Http(ethereumProvider);
+const Api = new Api(transport);
 
 export default new Api(ethereumProvider);
