@@ -16,44 +16,49 @@
 
 import Api from '@parity/api';
 
-const OverHttps = true;
-console.log(OverHttps);
-const timeout = 10000;
+const providers = {
+  PARITY: "Personal Parity",
+  METAMASK: "MetaMask",
+  INJECTED: "Unknown Injected",
+  LOCAL: "Other local node",
+  HOSTED: "Hosted by us",
+  NONE: "No provider found",
+};
 
-if (typeof window.parity !== 'undefined') {
-  HttpsUrl = 'http://localhost:8545';
-} else {
-  // For RPC over Https
-  HttpsUrl = 'https://kovan.infura.io';
-}
+const checkHttpProvider = url => {
+  const provider = new Api.Provider.Http(url);
+  return provider.isConnected() ? provider : null;
+};
 
-if (!ethereumProvider) {
-  var ethereumProvider = new Api.Provider.Http('https://kovan.infura.io');
-  console.log(ethereumProvider);
-}
+const api = (api = global.api) => {
+  let provider;
 
-const checkTransport = () => {
-  if (OverHttps) {
-    try {
-      // for @parity/api
-      const transport = new Api.Provider.Http(HttpsUrl, timeout)
+  if (api) {
+    if (api.parity) {
+      provider = providers.PARITY;
+    } else if (api.ethereumProvider.isMetaMask) {
+      provider = providers.METAMASK;
+    } else {
+      provider = providers.INJECTED;
+    }
+    return { web3: new Web3(api.ethereumProvider), provider };
+  }
 
-      console.log(transport.isConnected)
-      // @parity/parity.js
-      // const transport = new Api.Transport.Http(HttpsUrl, timeout);
-      console.log("Connecting to ", HttpsUrl)
-      return new Api(transport);
-    } catch (err) {
-      console.warn('Connection error: ', err);
+  let httpProvider = checkHttpProvider("http://localhost:8545");
+
+  if (httpProvider) {
+    provider = providers.LOCAL;
+  } else {
+    httpProvider = checkHttpProvider("https://kovan.infura.io");
+
+    if (httpProvider) {
+      provider = providers.HOSTED;
+    } else {
+      provider = providers.NONE;
     }
   }
-}
 
-var api = checkTransport()
-console.log(api)
-
-api.isConnected ? console.log('Connected to Node:', api.isConnected) : console.log('Could not connect to node.')
-
-export {
-  api
+  return { api: new Api(httpProvider), provider };
 };
+
+export default api;
