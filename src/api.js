@@ -17,7 +17,7 @@
 import Api from '@parity/api';
 
 const OverHttps = true;
-const timeout = 10000; (seconds)
+const timeout = 10000;
 
 if (typeof window.parity !== 'undefined') {
   HttpsUrl = 'http://localhost:8545';
