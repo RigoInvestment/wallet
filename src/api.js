@@ -14,51 +14,74 @@
 // You should have received a copy of the GNU General Public License
 // along with Parity.  If not, see <http://www.gnu.org/licenses/>.
 
-import Api from '@parity/api';
+import Api from '@parity/api'
+import Web3 from 'web3'
 
-const providers = {
-  PARITY: "Personal Parity",
-  METAMASK: "MetaMask",
-  INJECTED: "Unknown Injected",
-  LOCAL: "Other local node",
-  HOSTED: "Hosted by us",
-  NONE: "No provider found",
-};
+var HttpsUrl = true;
+var WsSecureUrl = true;
+const OverHttps = true;
+const timeout = 10000; // to set the delay between each ping to the Http server. Default = 1000 (1 sec)
 
-const checkHttpProvider = url => {
-  const provider = new Api.Provider.Http(url);
-  return provider.isConnected() ? provider : null;
-};
+if (typeof window.parity !== 'undefined') {
+  // Change to 'http://localhost:8545' and 'ws://localhost:8546' before building
+  // For RPC over Https
+  // HttpsUrl = 'https://srv03.endpoint.network:8545';
+  HttpsUrl = 'http://localhost:8545';
+  // For RPC over Websocket
+  // WsSecureUrl = 'wss://srv03.endpoint.network:8546';
+  WsSecureUrl = 'ws://localhost:8546';
+} else {
+  // For RPC over Https
+  HttpsUrl = 'https://kovan.infura.io';
+  // For RPC over Websocket
+  WsSecureUrl = 'wss://kovan.infura.io:8546';
+}
 
-const api = (api = global.api) => {
-  let provider;
+console.log(window)
+// Checking if Web3 has been injected by the browser (Mist/MetaMask)
 
-  if (api) {
-    if (api.parity) {
-      provider = providers.PARITY;
-    } else if (api.ethereumProvider.isMetaMask) {
-      provider = providers.METAMASK;
-    } else {
-      provider = providers.INJECTED;
+if (typeof window.web3 !== 'undefined') {
+  // Use Mist/MetaMask's provider
+  console.log('Found MetaMask!')
+  window.web3 = new Web3(window.web3.currentProvider)
+  console.log(window.web3.currentProvider)
+} else {
+  console.log('No web3? You should consider trying MetaMask!')
+  // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
+  // window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"))
+}
+
+// Now you can start your app & access web3 freely:
+
+const checkTransport = () => {
+  if (OverHttps) {
+    try {
+      // for @parity/api
+      const transport = new Api.Provider.Http(HttpsUrl, timeout)
+
+      console.log(transport.isConnected)
+      console.log("Connecting to ", HttpsUrl)
+      return new Api(transport);
+    } catch (err) {
+      console.warn('Connection error: ', err);
     }
-    return { web3: new Web3(api.ethereumProvider), provider };
-  }
-
-  let httpProvider = checkHttpProvider("http://localhost:8545");
-
-  if (httpProvider) {
-    provider = providers.LOCAL;
   } else {
-    httpProvider = checkHttpProvider("https://kovan.infura.io");
-
-    if (httpProvider) {
-      provider = providers.HOSTED;
-    } else {
-      provider = providers.NONE;
+    try {
+      console.log("Connecting to ", WsSecureUrl);
+      // for @parity/api
+      const transport = new Api.Provider.WsSecure(WsSecureUrl);
+      return new Api(transport);
+    } catch (err) {
+      console.warn('Connection error: ', err);
     }
   }
+}
 
-  return { api: new Api(httpProvider), provider };
+var api = checkTransport()
+console.log(api)
+
+api.isConnected ? console.log('Connected to Node:', api.isConnected) : console.log('Could not connect to node.')
+
+export {
+  api
 };
-
-export default api;
