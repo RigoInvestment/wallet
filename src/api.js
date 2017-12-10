@@ -17,6 +17,7 @@
 import Api from '@parity/api';
 
 const OverHttps = true;
+console.log(OverHttps);
 const timeout = 10000;
 
 if (typeof window.parity !== 'undefined') {
